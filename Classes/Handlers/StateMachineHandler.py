@@ -7,12 +7,12 @@ from Classes.Helpers.LoggingHelper import LoggingHelper
 
 class StateMachineHandler(gammu.StateMachine):
     def __init__(self):
-        super().__init__(self)
+        gammu.StateMachine.__init__(self)
         self.ReadConfig()
         self.Init()
 
     @staticmethod
-    def start_state_machine(log: LoggingHelper=LoggingHelper(), tries: int=0):
+    def start_state_machine(log: LoggingHelper, tries: int=0):
 
         while tries < 3:
             try:
@@ -23,19 +23,19 @@ class StateMachineHandler(gammu.StateMachine):
                 os.system("sh /usr/local/bin/usb_modeswitch_reset.sh")
                 log.logger.info("E3531 Rebooted.")
                 tries += 1
-                return StateMachineHandler.start_state_machine(tries=tries)
+                return StateMachineHandler.start_state_machine(log, tries)
             except gammu.ERR_DEVICEOPENERROR as err:
                 print(f"Unable to start StateMachine. Error: {(err.args[0])['Text']}")
                 log.logger.error(f"{(err.args[0])['Text']}. Retrying...")
                 tries += 1
                 time.sleep(3)
-                return StateMachineHandler.start_state_machine(tries=tries)
+                return StateMachineHandler.start_state_machine(log, tries)
 
         log.logger.error("Not able to start StateMachine.")
         log.status_logger('failure')
         raise Exception("Not able to start StateMachine.")
 
-    def send_sms(self, phone_number: str, message: str, log: LoggingHelper = LoggingHelper()):
+    def send_sms(self, phone_number: str, message: str, log: LoggingHelper):
 
         sms_info = {
             'Text': message,

@@ -7,7 +7,7 @@ class APISetup:
         self.api = Api(self.app)
 
     def set_controller(self, controller):
-         return self.api.add_resource(controller, '/')
+         self.api.add_resource(controller, '/')
 
     def init_app(self):
         self.app.run(port=5000, host='0.0.0.0')

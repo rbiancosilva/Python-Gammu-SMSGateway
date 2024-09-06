@@ -45,6 +45,7 @@ class StateMachineHandler(gammu.StateMachine):
 
         try:
             log.logger.info(f"Sending SMS to {phone_number}")
+            self.delete_all_sms(self.GetSMSStatus()['SIMUsed'])
             self.SendSMS(sms_info)
             self.sms_sent_status()
             log.logger.info(f"SMS sent to {phone_number}.")
@@ -67,26 +68,24 @@ class StateMachineHandler(gammu.StateMachine):
 
     def sms_sent_status(self):
 
-        def delete_all_sms(list_size:int):
-
-            for sms_index in range(list_size, 0, -1):
-                self.DeleteSMS(Folder=1, Location=sms_index)
-
         message = []
 
-        sms_list_size = (self.GetSMSStatus()['SIMUsed'])
+        sms_list_size = self.GetSMSStatus()['SIMUsed']
 
         if sms_list_size >= 1:
             sms = self.GetNextSMS(Folder=1, Location=sms_list_size-1)
             message.extend(sms)
         else:
-            print('Folder is empty')
             return 1
 
         for sms_part in message:
             if sms_part['Number'] == "1":
-                delete_all_sms(sms_list_size)
+                self.delete_all_sms(sms_list_size)
                 raise Exception('SIM Card has not enough data to send SMS.')
 
-        if sms_list_size != 0: delete_all_sms(sms_list_size)
+        if sms_list_size != 0: self.delete_all_sms(sms_list_size)
 
+    def delete_all_sms(self, list_size: int):
+
+        for sms_index in range(list_size, 0, -1):
+            self.DeleteSMS(Folder=1, Location=sms_index)

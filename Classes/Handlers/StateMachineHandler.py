@@ -17,22 +17,25 @@ class StateMachineHandler(gammu.StateMachine):
         while tries < 3:
             try:
                 return StateMachineHandler()
-            except gammu.ERR_DEVICENOTEXIST as err:
-                print(f"Not able to start StateMachine. Error: {(err.args[0])['Text']}. Rebooting E3531...")
-                log.logger.error(f"{(err.args[0])['Text']}. Rebooting E3531...")
+            except gammu.ERR_DEVICENOTEXIST as e:
+                print(f"Not able to start StateMachine. Error: {(e.args[0])['Text']}. Rebooting E3531...")
+                log.logger.error(f"{(e.args[0])['Text']}. Rebooting E3531...")
                 os.system("sh /usr/local/bin/usb_modeswitch_reset.sh")
+                time.sleep(5)
                 log.logger.info("E3531 Rebooted.")
                 tries += 1
                 return StateMachineHandler.start_state_machine(log, tries)
-            except gammu.ERR_DEVICEOPENERROR as err:
-                print(f"Unable to start StateMachine. Error: {(err.args[0])['Text']}")
-                log.logger.error(f"{(err.args[0])['Text']}. Retrying...")
+            except gammu.ERR_DEVICEOPENERROR as e:
+                print(f"Unable to start StateMachine. Error: {(e.args[0])['Text']}")
+                log.logger.error(f"{(e.args[0])['Text']}. Retrying...")
                 tries += 1
-                time.sleep(3)
+                return StateMachineHandler.start_state_machine(log, tries)
+            except gammu.GSMError as e:
+                print(f"Unknown error. Error: {(e.args[0])['Text']}")
+                log.logger.error(f"{(e.args[0])['Text']}. Retrying...")
+                tries += 1
                 return StateMachineHandler.start_state_machine(log, tries)
 
-        log.logger.error("Not able to start StateMachine.")
-        log.status_logger('failure')
         raise Exception("Not able to start StateMachine.")
 
     def send_sms(self, phone_number: str, message: str, log: LoggingHelper):
@@ -50,21 +53,21 @@ class StateMachineHandler(gammu.StateMachine):
             self.sms_sent_status()
             log.logger.info(f"SMS sent to {phone_number}.")
             log.status_logger('success')
-        except gammu.ERR_EMPTYSMSC as err:
-            print(f"E3531 disconnected while sending SMS to {phone_number}. Error: {(err.args[0])['Text']}")
-            log.logger.error(f"{(err.args[0])['Text']}. E3531 Disconnected.")
+        except gammu.ERR_EMPTYSMSC as e:
+            print(f"E3531 disconnected while sending SMS to {phone_number}. Error: {(e.args[0])['Text']}")
+            log.logger.error(f"{(e.args[0])['Text']}. E3531 Disconnected.")
             log.status_logger('failure')
-            raise Exception(f"{err.args[0]['Text']}")
-        except gammu.GSMError as err:
-            print(f"Unable to send the SMS to {phone_number}. Error: {(err.args[0])['Text']}")
-            log.logger.error(f"{(err.args[0])['Text']}")
+            raise Exception(f"{e.args[0]['Text']}")
+        except gammu.GSMError as e:
+            print(f"Unable to send the SMS to {phone_number}. Error: {(e.args[0])['Text']}")
+            log.logger.error(f"{(e.args[0])['Text']}")
             log.status_logger('failure')
-            raise Exception(f"{err.args[0]['Text']}")
-        except Exception as err:
-            print(f"Unable to send the SMS to {phone_number}. Error: {err}")
-            log.logger.error(f"{err}")
+            raise Exception(f"{e.args[0]['Text']}")
+        except Exception as e:
+            print(f"Unable to send the SMS to {phone_number}. Error: {e}")
+            log.logger.error(f"{e.args[0]['Text']}")
             log.status_logger('failure')
-            raise Exception(f"{err}")
+            raise Exception(f"{e.args[0]['Text']}")
 
     def sms_sent_status(self):
 
@@ -79,7 +82,7 @@ class StateMachineHandler(gammu.StateMachine):
             return 1
 
         for sms_part in message:
-            if sms_part['Number'] == "1":
+            if int(sms_part['Number']) == 1:
                 self.delete_all_sms(sms_list_size)
                 raise Exception('SIM Card has not enough data to send SMS.')
 

@@ -4,7 +4,7 @@ import logging
 class LoggingHelper:
     def __init__(self):
         logging.basicConfig(
-            filename='/home/gammu-python-V1/logs-teste-v2/log-files/gammu-python-0409-v1.log',
+            filename='/home/gammu-python-V1/logs-teste-v2/log-files/gammu-python-0609-v1.log',
             level=logging.DEBUG,
             format='%(asctime)s - %(pathname)s - %(levelname)s - %(message)s'
         )

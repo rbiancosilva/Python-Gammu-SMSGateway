@@ -1,6 +1,7 @@
 from flask import request
 from flask_restful import Resource
 
+from Classes.Helpers.LoggingHelper import LoggingHelper
 from Classes.Handlers.QueueHandler import QueueHandler
 
 class SMSGatewayController(Resource):
@@ -13,12 +14,15 @@ class SMSGatewayController(Resource):
         sms_queue = QueueHandler()
         sms_queue.enqueue(phone_number, message)
 
+        log = LoggingHelper()
+
         try:
             sms_queue.dequeue()
             return {'result': 'success'}, 200
         except Exception as e:
-            return {'error': f'{e}'}, 500
-
+            log.logger.error(f"{e}")
+            log.status_logger('failure')
+            return {"error": f"{e}"}, 500
 
 
 

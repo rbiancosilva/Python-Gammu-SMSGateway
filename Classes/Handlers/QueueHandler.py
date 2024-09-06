@@ -19,4 +19,5 @@ class QueueHandler:
                 sm = StateMachineHandler.start_state_machine(log)
                 sm.send_sms(phone_number, message, log)
             except Exception as e:
+
                 raise Exception(f'{e}')

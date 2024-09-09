@@ -16,7 +16,6 @@ class StateMachineHandler(gammu.StateMachine):
 
         while tries < 3:
             try:
-                print("starting statemachine")
                 return StateMachineHandler()
             except gammu.ERR_DEVICENOTEXIST as e:
                 print(f"Not able to start StateMachine. Error: {(e.args[0])['Text']}. Rebooting E3531...")
@@ -66,6 +65,11 @@ class StateMachineHandler(gammu.StateMachine):
             log.logger.error(f"{(e.args[0])['Text']}")
             log.status_logger('failure')
             raise Exception(f"{e.args[0]['Text']}")
+        except Exception as e:
+            print(f"Unable to send the SMS to {phone_number}. Error: {e}")
+            log.logger.error(f"{e}")
+            log.status_logger('failure')
+            raise Exception(f"{e}")
 
     def sms_sent_status(self):
 
@@ -80,9 +84,9 @@ class StateMachineHandler(gammu.StateMachine):
             return 1
 
         for sms_part in message:
-            if int(sms_part['Number']) == 1:
+            if str(sms_part['Number']) == "1":
                 self.delete_all_sms(sms_list_size)
-                raise Exception('SIM Card has not enough data to send SMS.')
+                raise Exception("It's not possible to send the SMS. Telephone operator issues.")
 
         if sms_list_size != 0: self.delete_all_sms(sms_list_size)
 

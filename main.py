@@ -6,4 +6,3 @@ api.set_controller(SMSGatewayController)
 
 if __name__ == '__main__':
     api.init_app()
-

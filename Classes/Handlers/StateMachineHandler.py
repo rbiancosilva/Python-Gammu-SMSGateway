@@ -16,6 +16,7 @@ class StateMachineHandler(gammu.StateMachine):
 
         while tries < 3:
             try:
+                print("starting statemachine")
                 return StateMachineHandler()
             except gammu.ERR_DEVICENOTEXIST as e:
                 print(f"Not able to start StateMachine. Error: {(e.args[0])['Text']}. Rebooting E3531...")
@@ -28,11 +29,13 @@ class StateMachineHandler(gammu.StateMachine):
             except gammu.ERR_DEVICEOPENERROR as e:
                 print(f"Unable to start StateMachine. Error: {(e.args[0])['Text']}")
                 log.logger.error(f"{(e.args[0])['Text']}. Retrying...")
+                time.sleep(5)
                 tries += 1
                 return StateMachineHandler.start_state_machine(log, tries)
             except gammu.GSMError as e:
                 print(f"Unknown error. Error: {(e.args[0])['Text']}")
                 log.logger.error(f"{(e.args[0])['Text']}. Retrying...")
+                time.sleep(5)
                 tries += 1
                 return StateMachineHandler.start_state_machine(log, tries)
 
@@ -48,7 +51,7 @@ class StateMachineHandler(gammu.StateMachine):
 
         try:
             log.logger.info(f"Sending SMS to {phone_number}")
-            self.delete_all_sms(self.GetSMSStatus()['SIMUsed'])
+            if self.GetSMSStatus()['SIMUsed'] > 0 : self.delete_all_sms(self.GetSMSStatus()['SIMUsed'])
             self.SendSMS(sms_info)
             self.sms_sent_status()
             log.logger.info(f"SMS sent to {phone_number}.")
@@ -61,11 +64,6 @@ class StateMachineHandler(gammu.StateMachine):
         except gammu.GSMError as e:
             print(f"Unable to send the SMS to {phone_number}. Error: {(e.args[0])['Text']}")
             log.logger.error(f"{(e.args[0])['Text']}")
-            log.status_logger('failure')
-            raise Exception(f"{e.args[0]['Text']}")
-        except Exception as e:
-            print(f"Unable to send the SMS to {phone_number}. Error: {e}")
-            log.logger.error(f"{e.args[0]['Text']}")
             log.status_logger('failure')
             raise Exception(f"{e.args[0]['Text']}")
 
@@ -88,7 +86,7 @@ class StateMachineHandler(gammu.StateMachine):
 
         if sms_list_size != 0: self.delete_all_sms(sms_list_size)
 
-    def delete_all_sms(self, list_size: int):
+    def delete_all_sms(self, sms_list_size: int):
 
-        for sms_index in range(list_size, 0, -1):
+        for sms_index in range(sms_list_size, 0, -1):
             self.DeleteSMS(Folder=1, Location=sms_index)

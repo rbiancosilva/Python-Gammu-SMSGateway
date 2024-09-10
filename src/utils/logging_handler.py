@@ -15,6 +15,6 @@ class LoggingJSONHandler(LoggingStarter):
             json.dump(log, file, indent=4)
             file.truncate()
 
-            self.logger.info(f"SUCCESS: {log['success']} FAILURE: {log['failure']}")
+            self.logger.info(f"Success: {log['success']} Failure: {log['failure']}")
 
 

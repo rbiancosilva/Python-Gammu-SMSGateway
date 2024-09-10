@@ -11,9 +11,9 @@ class StateMachineHandler(StateMachineStarter):
         except gammu.ERR_DEVICENOTEXIST as e:
             StateMachineErrorDeviceNotExist((e.args[0])['Text'])
         except gammu.ERR_DEVICEOPENERROR as e:
-            StateMachineErrorDeviceOpenError((e.args[0])['Text'])
+            StateMachineError((e.args[0])['Text'])
         except gammu.GSMError as e:
-            StateMachineErrorGSMError((e.args[0])['Text'])
+            StateMachineError((e.args[0])['Text'])
 
 
 

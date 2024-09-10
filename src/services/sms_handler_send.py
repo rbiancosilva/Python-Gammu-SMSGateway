@@ -2,7 +2,7 @@ import gammu
 
 from src.core import SMSStarter
 from src.errors.sms_error_emptysmsc import SMSErrorEmptySMSC
-from src.errors.sms_error_gsmerror import SMSErrorGSMError
+from src.errors.sms_error import SMSError
 from .sms_handler_delete import SMSHandlerDelete
 
 
@@ -31,7 +31,7 @@ class SMSHandlerSend(SMSStarter):
         except gammu.ERR_EMPTYSMSC as e:
             SMSErrorEmptySMSC((e.args[0])['Text'], self.__phone_number)
         except gammu.GSMError as e:
-            SMSErrorGSMError((e.args[0])['Text'], self.__phone_number)
+            SMSError((e.args[0])['Text'], self.__phone_number)
 
     def __send_sms_status(self):
         message = []

@@ -1,5 +1,5 @@
-from Classes.Setups.APISetup import APISetup
-from Classes.Controllers.SMSGatewayController import SMSGatewayController
+from app import APISetup
+from src.controllers import SMSGatewayController
 
 api = APISetup()
 api.set_controller(SMSGatewayController)

@@ -2,14 +2,14 @@ from flask import request
 from flask_restful import Resource
 
 from src.services import StateMachineHandler, SMSHandlerSend
-from src.utils import LoggingJSONHandler
 
 
 class SMSGatewayController(Resource):
     def __init__(self):
-        self.__logging_handler = LoggingJSONHandler()
+        pass
 
-    def post(self):
+    @staticmethod
+    def post():
         args = request.json
         phone_number = args['phone_number']
         message = args['message']
